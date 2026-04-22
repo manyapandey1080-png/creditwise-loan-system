@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CreditWise Loan System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>💳 CreditWise Loan Approval</h1>
+    <p>Enter applicant details</p>
+
+    <form action="/predict" method="POST">
+        <input type="number" name="income" placeholder="Applicant Income" required>
+        <input type="number" name="co_income" placeholder="Co-applicant Income" required>
+        <input type="number" name="loan_amount" placeholder="Loan Amount" required>
+        <input type="number" name="credit_score" placeholder="Credit Score" required>
+
+        <button type="submit" onclick="this.innerText='Predicting...'">
+            Predict
+        </button>
+    </form>
+
+    {% if result %}
+        {% if result == "Approved" %}
+            <div class="result approved">
+                ✅ Loan Approved
+                <p>Customer has strong financial profile</p>
+            </div>
+        {% elif result == "Rejected" %}
+            <div class="result rejected">
+                ❌ Loan Rejected
+                <p>Risk level is high based on inputs</p>
+            </div>
+        {% else %}
+            <div class="result error">
+                ⚠️ Something went wrong
+            </div>
+        {% endif %}
+    {% endif %}
+
+</div>
+
+</body>
+</html>
