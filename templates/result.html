@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Decision — CreditWise{% endblock %}
+{% block content %}
+{% set active = 'apply' %}
+{% set is_approved = prediction == 'Approved' %}
+{% set pct = (probability * 100) | round(1) %}
+{% set circumference = 251.33 %}
+{% set fg_len = (probability * circumference) | round(2) %}
+{% set needle_deg = (probability * 180 - 90) | round(1) %}
+
+<h1>Decision</h1>
+<p class="deck">Based on the details submitted, here is the model's read on this application.</p>
+
+<div class="ledger-card stamp-wrap">
+  <div class="stamp" style="--stamp-color: {{ 'var(--approve)' if is_approved else 'var(--reject)' }};">
+    <span>{{ prediction }}</span>
+  </div>
+
+  <div class="gauge-figure">
+    <svg width="220" height="130" viewBox="0 0 200 110">
+      <path d="M20,100 A80,80 0 0 1 180,100" fill="none" stroke="#D9D3BF" stroke-width="10" stroke-linecap="round"/>
+      <path d="M20,100 A80,80 0 0 1 180,100" fill="none"
+            stroke="{{ '#2F6E52' if is_approved else '#9C3B2E' }}"
+            stroke-width="10" stroke-linecap="round"
+            stroke-dasharray="{{ fg_len }} {{ circumference }}"/>
+      <line x1="100" y1="100" x2="100" y2="32" stroke="#16283A" stroke-width="3" stroke-linecap="round"
+            transform="rotate({{ needle_deg }} 100 100)"/>
+      <circle cx="100" cy="100" r="6" fill="#16283A"/>
+    </svg>
+    <div class="gauge-reading">Approval likelihood: <strong>{{ pct }}%</strong></div>
+  </div>
+
+  <div class="result-actions">
+    <a href="{{ url_for('home') }}">Assess another application</a>
+    <a href="{{ url_for('history') }}">View ledger</a>
+  </div>
+</div>
+
+{% endblock %}

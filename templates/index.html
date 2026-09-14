@@ -1,45 +1,110 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>CreditWise Loan System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Apply — CreditWise{% endblock %}
+{% block content %}
 
-<div class="container">
-    <h1>💳 CreditWise Loan Approval</h1>
-    <p>Enter applicant details</p>
+{% set active = 'apply' %}
+{% set labels = {
+  'person_age': 'Applicant age',
+  'person_income': 'Annual income',
+  'person_emp_exp': 'Years employed',
+  'loan_amnt': 'Loan amount requested',
+  'loan_int_rate': 'Interest rate (%)',
+  'loan_percent_income': 'Loan as % of income',
+  'cb_person_cred_hist_length': 'Credit history length (yrs)',
+  'credit_score': 'Credit score',
+  'person_gender': 'Gender',
+  'person_education': 'Education',
+  'person_home_ownership': 'Home ownership',
+  'loan_intent': 'Loan purpose',
+  'previous_loan_defaults_on_file': 'Previous default on file'
+} %}
 
-    <form action="/predict" method="POST">
-        <input type="number" name="income" placeholder="Applicant Income" required>
-        <input type="number" name="co_income" placeholder="Co-applicant Income" required>
-        <input type="number" name="loan_amount" placeholder="Loan Amount" required>
-        <input type="number" name="credit_score" placeholder="Credit Score" required>
+<h1>Assess an application</h1>
+<p class="deck">Enter the applicant's details below. Every field feeds the same model used to grade the training set — nothing here is decorative.</p>
 
-        <button type="submit" onclick="this.innerText='Predicting...'">
-            Predict
-        </button>
-    </form>
+<div class="ledger-card">
+  {% if error %}
+    <div class="error-banner">{{ error }}</div>
+  {% endif %}
 
-    {% if result %}
-        {% if result == "Approved" %}
-            <div class="result approved">
-                ✅ Loan Approved
-                <p>Customer has strong financial profile</p>
-            </div>
-        {% elif result == "Rejected" %}
-            <div class="result rejected">
-                ❌ Loan Rejected
-                <p>Risk level is high based on inputs</p>
-            </div>
-        {% else %}
-            <div class="result error">
-                ⚠️ Something went wrong
-            </div>
+  <form method="POST" action="{{ url_for('predict_form') }}">
+    <div class="field-grid">
+
+      <div class="section-label">Applicant</div>
+      {% for col in ['person_age', 'person_gender', 'person_education', 'person_income', 'person_emp_exp'] %}
+        {% if col in numeric_cols %}
+          <div class="field">
+            <label for="{{ col }}">{{ labels.get(col, col) }}</label>
+            <input type="number" step="any" min="0" id="{{ col }}" name="{{ col }}"
+                   value="{{ form_values.get(col, '') if form_values else '' }}" required>
+          </div>
+        {% elif col in categorical_cols %}
+          <div class="field">
+            <label for="{{ col }}">{{ labels.get(col, col) }}</label>
+            <select id="{{ col }}" name="{{ col }}" required>
+              <option value="" disabled {{ 'selected' if not (form_values and form_values.get(col)) }}>Select…</option>
+              {% for opt in dropdown_options[col] %}
+                <option value="{{ opt }}" {{ 'selected' if form_values and form_values.get(col) == opt }}>
+                  {{ opt.replace('_', ' ').title() }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
         {% endif %}
-    {% endif %}
+      {% endfor %}
 
+      <div class="section-label">Housing &amp; credit history</div>
+      {% for col in ['person_home_ownership', 'cb_person_cred_hist_length', 'credit_score', 'previous_loan_defaults_on_file'] %}
+        {% if col in numeric_cols %}
+          <div class="field">
+            <label for="{{ col }}">{{ labels.get(col, col) }}</label>
+            <input type="number" step="any" min="0" id="{{ col }}" name="{{ col }}"
+                   value="{{ form_values.get(col, '') if form_values else '' }}" required>
+          </div>
+        {% elif col in categorical_cols %}
+          <div class="field">
+            <label for="{{ col }}">{{ labels.get(col, col) }}</label>
+            <select id="{{ col }}" name="{{ col }}" required>
+              <option value="" disabled {{ 'selected' if not (form_values and form_values.get(col)) }}>Select…</option>
+              {% for opt in dropdown_options[col] %}
+                <option value="{{ opt }}" {{ 'selected' if form_values and form_values.get(col) == opt }}>
+                  {{ opt.replace('_', ' ').title() }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="section-label">Loan requested</div>
+      {% for col in ['loan_intent', 'loan_amnt', 'loan_int_rate', 'loan_percent_income'] %}
+        {% if col in numeric_cols %}
+          <div class="field">
+            <label for="{{ col }}">{{ labels.get(col, col) }}</label>
+            <input type="number" step="any" min="0" id="{{ col }}" name="{{ col }}"
+                   value="{{ form_values.get(col, '') if form_values else '' }}" required>
+          </div>
+        {% elif col in categorical_cols %}
+          <div class="field">
+            <label for="{{ col }}">{{ labels.get(col, col) }}</label>
+            <select id="{{ col }}" name="{{ col }}" required>
+              <option value="" disabled {{ 'selected' if not (form_values and form_values.get(col)) }}>Select…</option>
+              {% for opt in dropdown_options[col] %}
+                <option value="{{ opt }}" {{ 'selected' if form_values and form_values.get(col) == opt }}>
+                  {{ opt.replace('_', ' ').title() }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <div class="submit-row">
+      <button type="submit" class="primary">Assess application</button>
+    </div>
+  </form>
 </div>
 
-</body>
-</html>
+{% endblock %}

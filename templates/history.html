@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Ledger — CreditWise{% endblock %}
+{% block content %}
+{% set active = 'history' %}
+
+<h1>Ledger</h1>
+<p class="deck">The last 50 assessments, most recent first.</p>
+
+<div class="summary-strip">
+  <div>
+    <span class="stat-label">Entries</span>
+    <span class="stat-value">{{ total }}</span>
+  </div>
+  <div>
+    <span class="stat-label">Approval rate</span>
+    <span class="stat-value">{{ approval_rate }}%</span>
+  </div>
+</div>
+
+{% if rows %}
+<table class="passbook">
+  <thead>
+    <tr>
+      <th>Timestamp (UTC)</th>
+      <th>Decision</th>
+      <th>Probability</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row['created_at'][:19].replace('T', ' ') }}</td>
+      <td>
+        <span class="tag {{ 'approve' if row['prediction'] == 'Approved' else 'reject' }}">
+          {{ row['prediction'] }}
+        </span>
+      </td>
+      <td>{{ (row['probability'] * 100) | round(1) }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="ledger-card">
+  <div class="empty-state">No entries yet — assess an application to open the ledger.</div>
+</div>
+{% endif %}
+
+{% endblock %}

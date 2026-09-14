@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Statement — CreditWise{% endblock %}
+{% block content %}
+{% set active = 'metrics' %}
+
+<h1>Model statement</h1>
+<p class="deck">Performance of the model currently serving predictions, measured on a held-out test split.</p>
+
+{% if metrics %}
+<div class="ledger-card">
+  <div class="statement-head">
+    <div>Selected model</div>
+    <div class="model-name">{{ metrics.best_model }}</div>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-cell">
+      <span class="stat-label">Accuracy</span>
+      <span class="stat-value">{{ (metrics.accuracy * 100) | round(1) }}%</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Precision</span>
+      <span class="stat-value">{{ (metrics.precision * 100) | round(1) }}%</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">Recall</span>
+      <span class="stat-value">{{ (metrics.recall * 100) | round(1) }}%</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">F1 score</span>
+      <span class="stat-value">{{ (metrics.f1 * 100) | round(1) }}%</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-label">ROC AUC</span>
+      <span class="stat-value">{{ metrics.roc_auc | round(3) }}</span>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="ledger-card">
+  <div class="empty-state">
+    No statement on file yet — rerun train_model.py to generate model/metrics.pkl.
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
